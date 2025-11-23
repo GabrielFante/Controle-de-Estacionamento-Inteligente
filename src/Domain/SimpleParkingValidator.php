@@ -1,46 +1,91 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Domain\Validators;
+
 use App\Contracts\ParkingValidator;
+use App\Contracts\ParkingRepository;
+use App\Enums\VehicleType;
 
 final class SimpleParkingValidator implements ParkingValidator
 {
-    public function validateEntry(string $plate, VehicleType $vehicle): bool
+    public function __construct(
+        private ParkingRepository $repository
+    ) {}
+
+    public function validateEntry(array $input): array
     {
-        $platePattern = '/^[A-Z0-9]{1,7}$/';
+        $plate   = strtoupper(trim($input['plate'] ?? ''));
+        $vehicle = strtoupper(trim($input['vehicle'] ?? ''));
 
         $errors = [];
 
-        $plate = strtoupper(trim($plate));
-        $vehicle = $vehicle;
-
-        if (!is_array($input)) {
-            return ['ok' => false, 'errors' => ['internal' => 'Validator retornou formato inválido']];
+        if (!$this->isValidPlate($plate)) {
+            $errors[] = "Formato da placa inválido.";
         }
 
-        if (!($input['ok'] ?? false)) {
-            return ['ok' => false, 'errors' => ($input['errors'] ?? ['internal' => 'Erro de validação'])];
+        $vehicleEnum = VehicleType::tryFrom($vehicle);
+        if (!$vehicleEnum) {
+            $errors[] = "Tipo de veículo inválido.";
         }
 
-        if (!preg_match($platePattern, $plate)) {
-            $errors[] = 'Invalid license plate format.';
-        }
-
-        if (strlen($plate) > 7 || strlen($plate) < 7) {
-            $errors[] = 'License plate needs length of 7 characters.';
-        }
-
-        if (!in_array($vehicle, VehicleType::cases())) {
-            $errors[] = 'Unsupported vehicle type.';
+        if ($this->repository->getEntryByPlate($plate)) {
+            $errors[] = "Este veículo já está estacionado.";
         }
 
         if ($errors) {
             return ['ok' => false, 'errors' => $errors];
         }
 
-        return ['ok' => false, 'errors' => [], 'data' => [
-            'plate' => $plate,
-            'vehicle' => $vehicle
-        ]];
+        return [
+            'ok'     => true,
+            'plate'  => $plate,
+            'vehicle'=> $vehicleEnum
+        ];
+    }
+
+    public function validateExit(string $plate): array
+    {
+        $plate = strtoupper(trim($plate));
+        $entry = $this->repository->getEntryByPlate($plate);
+
+        if (!$entry) {
+            return ['ok' => false, 'errors' => ["O veículo não está estacionado."]];
+        }
+
+        return $this->calculatePrice($entry);
+    }
+
+    public function calculatePrice(array $entry): array
+    {
+        if (!isset($entry['entry_time'], $entry['vehicle'])) {
+            return ['ok' => false, 'errors' => ["Dados incompletos para cálculo."]];
+        }
+
+        $entryTime = new \DateTimeImmutable($entry['entry_time']);
+        $exitTime  = new \DateTimeImmutable();
+
+        $diffSeconds = $exitTime->getTimestamp() - $entryTime->getTimestamp();
+
+        if ($diffSeconds < 0) {
+            return ['ok' => false, 'errors' => ["Horário de entrada inválido."]];
+        }
+
+        $hours = max(1, (int) ceil($diffSeconds / 3600));
+
+        $vehicle = $entry['vehicle'];
+        $price = $hours * $vehicle->price();
+
+        return [
+            'ok'    => true,
+            'price' => $price,
+            'hours' => $hours
+        ];
+    }
+
+
+    private function isValidPlate(string $plate): bool
+    {
+        return (bool) preg_match('/^[A-Z0-9]{7}$/', $plate);
     }
 }
