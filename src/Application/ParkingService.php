@@ -19,18 +19,22 @@ final class ParkingService
      */
     public function parkingReport(): array
     {
+        return $this->repository->getAllEntries();
+    }
+
+    public function calculateParking(string $plate): void
+    {
         
-        return [];
     }
 
     /**
      * @param VehicleType::CAR|VehicleType::MOTORCYCLE|VehicleType::TRUCK $vehicle
      */
-    public function registerVehicleEntry(string $plate, VehicleType $vehicle): void
+    public function registerVehicleEntry(array $input): void
     {
-        $result = $this->validator->validateEntry($plate, $vehicle);
+        $result = $this->validator->validateEntry($input);
 
-        $entryData = new ParkingEntryData($plate, $vehicle, new \DateTimeImmutable());
+        $entryData = new ParkingEntryData($input);
         $this->repository->saveEntry($entryData);
     }
 

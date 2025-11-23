@@ -11,6 +11,17 @@ final class SimpleParkingValidator implements ParkingValidator
 
         $errors = [];
 
+        $plate = strtoupper(trim($plate));
+        $vehicle = $vehicle;
+
+        if (!is_array($input)) {
+            return ['ok' => false, 'errors' => ['internal' => 'Validator retornou formato inválido']];
+        }
+
+        if (!($input['ok'] ?? false)) {
+            return ['ok' => false, 'errors' => ($input['errors'] ?? ['internal' => 'Erro de validação'])];
+        }
+
         if (!preg_match($platePattern, $plate)) {
             $errors[] = 'Invalid license plate format.';
         }
