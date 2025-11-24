@@ -104,7 +104,7 @@ use App\Enums\VehicleTypes;
                 <a href="register.php">Cadastrar seu veiculo</a>
             </button>
             <button id="btnSaida">
-                <a href="register.php">Registrar saida</a>
+                <a href="exit.php">Registrar saida</a>
             </button>
             <button id="btnRelatorio">
                 <a href="report.php">Relátorio</a>
