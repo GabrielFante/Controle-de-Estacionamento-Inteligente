@@ -5,9 +5,27 @@ namespace App\Contracts;
 
 interface ParkingRepository
 {
-    public function saveEntry(ParkingEntryData $entryData): void;
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getAllEntries(): array;
 
-    public function findEntryByPlate(string $plate): ?ParkingEntryData;
+    /**
+     * @param array<string, mixed> $entry
+     * @return int
+     */
+    public function saveEntry(array $entry): int;
 
-    public function saveExit(string $plate, \DateTimeImmutable $exitTime): void;
+    /**
+     * @param string $plate
+     * @return array<string, mixed>|null
+     */
+    public function getEntryByPlate(string $plate): ?array;
+
+    /**
+     * @param string $plate
+     * @param \DateTimeImmutable $exitTime
+     * @return void
+     */
+    public function updateExitTime(string $plate, \DateTimeImmutable $exitTime): void;
 }
