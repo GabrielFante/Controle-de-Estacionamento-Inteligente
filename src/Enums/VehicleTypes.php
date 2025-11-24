@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum VehicleType: string
+enum VehicleTypes: string
 {
     case CAR = 'CAR';
     case MOTORCYCLE = 'MOTORCYCLE';
