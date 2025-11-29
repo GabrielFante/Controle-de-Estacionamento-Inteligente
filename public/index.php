@@ -36,7 +36,7 @@ use App\Enums\VehicleTypes;
             display: flex;
             justify-content: center;
             color: #ffff;
-            text-shadow: 0px 0px 6px rgba(76, 0, 255, 1), 0px 0px 6px rgba(76, 0, 255, 1);
+            text-shadow: 2px 2px 2px rgba(76, 0, 255, 1);
             font-size: 50px;
             font-weight: bold;
             
@@ -59,9 +59,9 @@ use App\Enums\VehicleTypes;
 
         #btnCadastro{
           cursor: pointer;
-          background-Color: rgba(18, 68, 3, 1);
-          border: 2px solid rgba(71, 238, 107, 1);
-          color: rgba(9, 255, 0, 1);
+          background-Color: rgba(14, 58, 1, 1);
+          border: 2px solid rgba(42, 255, 0, 1);
+          color: rgba(111, 255, 106, 1);
           border-radius: 10px;
           padding: 7px 7px;
           margin: 5px;
@@ -71,9 +71,9 @@ use App\Enums\VehicleTypes;
 
         #btnSaida{
           cursor: pointer;
-          background-Color: rgba(68, 3, 3, 1);
-          border: 2px solid rgba(238, 71, 71, 1);
-          color: rgba(255, 0, 0, 1);
+          background-Color: rgba(59, 1, 1, 1);
+          border: 2px solid rgba(255, 0, 0, 1);
+          color: rgba(255, 90, 90, 1);
           border-radius: 10px;
           padding: 7px 7px;
           margin: 5px;
@@ -83,9 +83,9 @@ use App\Enums\VehicleTypes;
 
         #btnRelatorio{
           cursor: pointer;
-          background-Color: rgba(68, 3, 59, 1);
-          border: 2px solid rgba(238, 71, 216, 1);
-          color: rgba(255, 0, 200, 1);
+          background-Color: rgba(3, 45, 68, 1);
+          border: 2px solid rgba(0, 106, 255, 1);
+          color: rgba(104, 235, 249, 1);
           border-radius: 10px;
           padding: 7px 7px;
           margin: 5px;
