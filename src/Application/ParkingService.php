@@ -54,16 +54,16 @@ final class ParkingService
 
         try {
             $parking = $this->repository->findByPlate($plate);
-            $calc = $this->calculator->calculate($parking);
+            $calculate = $this->calculator->calculate($parking);
 
             $this->repository->updateExitInfo(
                 $plate,
-                $calc['exitTime'],
-                $calc['price'],
-                $calc['hours']
+                $calculate['exitTime'],
+                $calculate['price'],
+                $calculate['hours']
             );
 
-            return ['ok' => true, 'hours'=>$calc['hours'], 'price'=>$calc['price']];
+            return ['ok' => true, 'hours'=>$calculate['hours'], 'price'=>$calculate['price']];
         } catch (\Throwable $e) {
             return ['ok'=>false, 'errors'=>[$e->getMessage()]];
         }

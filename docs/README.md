@@ -72,10 +72,11 @@ O Repository salva no SQLite
 
 O relatório soma apenas veículos que já tem preço calculado no banco
 
-## Resultado esperado (baseado nas imagens)
+## Resultado esperado
+
 Relatório principal mostra:
-Total veículos: 6~7
-Faturamento Moto: R$ 3~6
+Total veículos: 6 - 7
+Faturamento Moto: R$ 3 - 6
 Faturamento Carro: R$ 40
 Faturamento Caminhão: R$ 20
 Total Faturado: R$ 63~66
