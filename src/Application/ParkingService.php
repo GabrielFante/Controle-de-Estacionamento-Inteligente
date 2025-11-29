@@ -3,21 +3,18 @@ declare(strict_types=1);
 
 namespace App\Application;
 
-use App\Contracts\ParkingValidator;
-use App\Contracts\ParkingRepository;
-use App\Domain\Services\ParkingPricingService;
+use App\Domain\ParkingValidator;
+use App\Domain\ParkingRepository;
+use App\Domain\ParkingCalculator;
 
 final class ParkingService
 {
     public function __construct(
         private ParkingRepository $repository,
         private ParkingValidator $validator,
-        private ParkingPricingService $pricing
+        private ParkingCalculator $calculator
     ) {}
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     public function parkingReport(): array
     {
         return $this->repository->getAllEntries();
@@ -56,7 +53,7 @@ final class ParkingService
             return ['ok' => false, 'errors' => ["Veículo não encontrado."]];
         }
 
-        return $this->pricing->calculatePrice($entry);
+        return $this->calculator->calculatePrice($entry);
     }
 
     /**
@@ -72,7 +69,7 @@ final class ParkingService
 
         $entry = $validation['entry'];
 
-        $calculate = $this->pricing->calculatePrice($entry);
+        $calculate = $this->calculator->calculatePrice($entry);
 
         if (!$calculate['ok']) {
             return $calculate;
