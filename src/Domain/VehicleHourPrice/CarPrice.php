@@ -9,8 +9,6 @@ class CarPrice implements IPrice
 {
     public function price(): int
     {
-        return match($this) {
-            self::CAR => 5,
-        };
-    }
+        return 5;
+    }
 }

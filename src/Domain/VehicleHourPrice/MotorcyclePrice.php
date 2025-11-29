@@ -7,10 +7,9 @@ require_once __DIR__ . 'IPrice.php';
 
 class MotorcyclePrice implements IPrice
 {
-    public function price(): int
+     public function price(): int
     {
-        return match($this) {
-            self::MOTORCYCLE => 5,
-        };
-    }
+        return 3;
+    }
+
 }

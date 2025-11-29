@@ -88,7 +88,7 @@ use App\Enums\VehicleType;
         <input name="plate" placeholder="Insira a placa" required>
         </label>
         <label>Preço:
-        <input id="preco" name="preco" readonly>
+        <input id="preco" name="price" readonly>
         </label>
         <button type="submit">Cadastrar</button>
     </form>

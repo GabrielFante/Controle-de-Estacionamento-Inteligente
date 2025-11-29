@@ -1,20 +1,27 @@
 <?php
 declare(strict_types=1);
 
-
 namespace App\Domain;
 
-use App\Domain\VehicleHourPrice;
+use App\Domain\VehicleHourPrice\CarPrice;
+use App\Domain\VehicleHourPrice\TruckPrice;
+use App\Domain\VehicleHourPrice\MotorcyclePrice;
 
 final class ParkingCalculator
 {
-    public function calculateParking(\DateTimeImmutable $entryTime, ?\DateTimeImmutable $exitTime,string $vehicleType): float
-    {
-        if ($exitTime === null) {
-            $exitTime = new \DateTimeImmutable();
-        }
+    public function calculateParking(
+        \DateTimeImmutable $entryTime,
+        ?\DateTimeImmutable $exitTime,
+        IPrice $price
+        ): float {
+            if ($exitTime === null) {
+                $exitTime = new \DateTimeImmutable();
+            }
 
-        $time = $entryTime->diff($exitTime) * $vehicleType->getHourPrice();
-        return $time;
-    }
+        $diff = $entryTime->diff($exitTime);
+        $hours = (float) $diff->h + ($diff->days * 24);
+
+        return $hours * $price->price();
+    }
+
 }

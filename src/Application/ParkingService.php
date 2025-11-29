@@ -31,15 +31,15 @@ final class ParkingService
         if (!$validation['ok']) {
             return $validation;
         }
+        
+        $plate = strtolower(trim((string)$input['plate']));
+        $vehicleType = strtolower(trim((string)$input['vehicleType']));
+        $entryTime = strtolower(trim((string)$input['entryTime']));
 
-        $id = $this->repository->saveEntry([
-            'plate' => $validation['plate'],
-            'vehicle' => $validation['vehicle'],
-            'entry_time' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-            'exit_time'  => null
-        ]);
+        $parking = new Parking(plate, vehicleType, entryTime);
+        $register = $this->$repository->register($parking);
 
-        return ['ok' => true, 'id' => $id];
+        return ['ok' => true, 'id' => $register->id()];
     }
 
     /**
