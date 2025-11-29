@@ -11,7 +11,7 @@ interface ParkingRepository
 
     public function update(Parking $parking): void;
 
-    public function findById(int $id): Parking;
+    public function findByPlate(string $plate): Parking;
 
     public function delete(int $id): void;
 }
