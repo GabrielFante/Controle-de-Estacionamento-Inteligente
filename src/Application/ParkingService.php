@@ -45,20 +45,6 @@ final class ParkingService
     /**
      * @return array{ok:bool, price?:float, hours?:int, errors?:array<string>}
      */
-    public function calculateParking(string $plate): array
-    {
-        $entry = $this->repository->getEntryByPlate($plate);
-
-        if (!$entry) {
-            return ['ok' => false, 'errors' => ["Veículo não encontrado."]];
-        }
-
-        return $this->calculator->calculatePrice($entry);
-    }
-
-    /**
-     * @return array{ok:bool, price?:float, hours?:int, errors?:array<string>}
-     */
     public function doExitVehicle(string $plate): array
     {
         $validation = $this->validator->validateExit($plate);
@@ -67,18 +53,17 @@ final class ParkingService
             return $validation;
         }
 
-        $entry = $validation['entry'];
+        $entry = $this->repository->findByPlate($plate);
 
-        $calculate = $this->calculator->calculatePrice($entry);
+        $calculate = $this->pricing->calculatePrice($entry);
 
         if (!$calculate['ok']) {
             return $calculate;
         }
 
-        $this->repository->updateExitTime(
+        $this->repository->updateExitInfo(
             $plate,
             new \DateTimeImmutable(),
-            $calculate['price'],
             $calculate['hours']
         );
 
@@ -86,6 +71,6 @@ final class ParkingService
             'ok'    => true,
             'price' => $calculate['price'],
             'hours' => $calculate['hours'],
-        ];
+        ];
     }
 }

@@ -12,12 +12,16 @@ $pdo = new PDO('sqlite:' . $dbPath);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS parking_entries (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  data TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS parking (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    plate TEXT NOT NULL,
+    vehicle_type TEXT NOT NULL CHECK (vehicle_type IN ('CAR', 'MOTORCYCLE', 'TRUCK')),
+    entry_time TEXT NOT NULL,
+    exit_time TEXT,
+    price REAL CHECK(price >= 0)
 );
 SQL;
 
 $pdo->exec($sql);
 
-echo "OK: database.sqlite e tabela parking_entries criados/atualizados.\n";
+echo "OK\n";

@@ -9,7 +9,7 @@ use App\Domain\VehicleHourPrice\MotorcyclePrice;
 
 final class ParkingCalculator
 {
-    public function calculateParking(
+    public function calculatePrice(
         \DateTimeImmutable $entryTime,
         ?\DateTimeImmutable $exitTime,
         IPrice $price

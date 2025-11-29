@@ -49,18 +49,17 @@ final class SqliteParkingRepository implements ParkingRepository
         return $parkings;
     }
 
-    public function update(Parking $parking): void
+    public function updateExitInfo(string $plate, \DateTimeImmutable $exitTime, float $hours): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE parking SET plate = :plate, vehicle_type = :vehicle_type, entry_time = :entry_time, exit_time = :exit_time WHERE id = :id'
+            'UPDATE parking SET exit_time = :exit_time, hours = :hours WHERE plate = :plate'
         );
+
         $stmt->execute([
-            ':id' => $parking->getId(),
-            ':plate' => $parking->getPlate(),
-            ':vehicle_type' => $parking->getVehicleType(),
-            ':entry_time' => $parking->getEntryTime()->format('Y-m-d H:i:s'),
-            ':exit_time' => $parking->getExitTime() ? $parking->getExitTime()->format('Y-m-d H:i:s') : null,
-        ]);
+            ':plate' => $plate,
+            ':exit_time' => $exitTime->format('Y-m-d H:i:s'),
+            ':hours' => $hours,
+        ]);
     }
 
     public function findByPlate(string $plate): Parking
