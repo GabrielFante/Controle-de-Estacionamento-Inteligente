@@ -86,5 +86,4 @@ final class SqliteParkingRepository implements ParkingRepository
         $stmt = $this->pdo->prepare('DELETE FROM parking WHERE id = :id');
         $stmt->execute([':id' => $id]);
     }
-
 }
