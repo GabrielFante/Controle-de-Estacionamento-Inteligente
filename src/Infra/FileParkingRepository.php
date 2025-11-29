@@ -74,15 +74,17 @@ final class FileParkingRepository implements ParkingRepository
      * @param DateTimeImmutable $exitTime
      * @return void
      */
-    public function updateExitTime(string $plate, DateTimeImmutable $exitTime): void
+    public function updateExitTime(string $plate, DateTimeImmutable $exitTime, float $price, int $hours): void
     {
-        $found = $this->findEntry($plate);
-        if ($found === null) {
-            return;
-        }
-        $json = $this->prepareUpdatedEntry($found['entry'], $exitTime);
-        $this->updateEntryInDatabase($found['id'], $json);
-    }
+        $json = $this->prepareUpdatedEntry(
+        $found['entry'],
+        $exitTime,
+        $price,
+        $hours
+    );
+
+    $this->updateEntryInDatabase($found['id'], $json);
+}
 
     private function findEntry(string $plate): ?array
     {
@@ -95,9 +97,12 @@ final class FileParkingRepository implements ParkingRepository
         return null;
     }
 
-    private function prepareUpdatedEntry(array $entry, DateTimeImmutable $exitTime): string
+    private function prepareUpdatedEntry( array $entry, DateTimeImmutable $exitTime, float $price, int $hours): string 
     {
         $entry['exit_time'] = $exitTime->format('Y-m-d H:i:s');
+        $entry['price']     = $price;
+        $entry['hours']     = $hours;
+
         return json_encode($entry, JSON_UNESCAPED_UNICODE);
     }
 

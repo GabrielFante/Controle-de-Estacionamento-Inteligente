@@ -20,10 +20,7 @@ use App\Enums\VehicleTypes;
             margin: 0;
             padding: 0;
             height: 100vh;
-            background-image: url('https://imgs.search.brave.com/mNTD7F8i3mpr0gcsL7FUjcDnoKywCELUWwIi_ZArHe0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/dmV0b3Jlcy1wcmVt/aXVtL3ZldG9yLWRl/LXNpbmFsLWRlLW5l/b24tZGUtZXN0YWNp/b25hbWVudG8tbW9k/ZWxvLWRlLWRlc2ln/bi1kZS16b25hLWRl/LWVzdGFjaW9uYW1l/bnRvLWJhbm5lci1k/ZS1sdXotZGUtc2lu/YWwtZGUtbmVvbi1w/bGFjYS1kZS1uZW9u/LXRvZGFzLWFzLW5v/aXRlcy1pbnNjcmlj/YW8tZGUtbHV6LWRl/LXB1YmxpY2lkYWRl/LWJyaWxoYW50ZS1p/bHVzdHJhY2FvLXZl/dG9yaWFsXzU0OTg5/Ny0yMTE5LmpwZz9z/ZW10PWFpc19oeWJy/aWQ');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-color: #2d2d2d;
         }
 
         #container {

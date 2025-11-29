@@ -7,5 +7,14 @@ use App\Enums\VehicleType;
 
 interface ParkingValidator
 {
-    public function validateEntry(string $plate, VehicleType $vehicle): bool;
+    /**
+     * @param array{plate:string, vehicle:string} $input
+     * @return array{ok:bool, errors?:array<string>, plate?:string, vehicle?:VehicleTypes, entry?:array}
+     */
+    public function validateEntry(array $input): array;
+
+    /**
+     * @return array{ok:bool, errors?:array<string>, entry?:array}
+     */
+    public function validateExit(string $plate): array;
 }

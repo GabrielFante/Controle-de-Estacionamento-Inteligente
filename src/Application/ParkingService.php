@@ -80,13 +80,15 @@ final class ParkingService
 
         $this->repository->updateExitTime(
             $plate,
-            new \DateTimeImmutable()
+            new \DateTimeImmutable(),
+            $calculate['price'],
+            $calculate['hours']
         );
 
         return [
-            'ok' => true,
+            'ok'    => true,
             'price' => $calculate['price'],
-            'hours' => $calculate['hours']
+            'hours' => $calculate['hours'],
         ];
     }
 }
