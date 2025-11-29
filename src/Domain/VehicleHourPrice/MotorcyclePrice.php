@@ -5,12 +5,12 @@ namespace App\Domain\VehicleHourPrice;
 
 require_once __DIR__ . 'IPrice.php';
 
-class CarPrice implements IPrice
+class MotorcyclePrice implements IPrice
 {
-    public function price(): string
+    public function price(): int
     {
         return match($this) {
-            self::CAR => 5,
+            self::MOTORCYCLE => 5,
         };
     }
 }
