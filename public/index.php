@@ -1,116 +1,204 @@
 <?php
-
 declare(strict_types=1);
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Enums\VehicleTypes;
+use App\Infra\SqliteParkingRepository;
+use App\Application\ParkingService;
+use App\Domain\ParkingValidator;
+use App\Domain\ParkingCalculator;
+
+$pdo = new PDO('sqlite:/opt/lampp/htdocs/Controle-de-Estacionamento-Inteligente/storage/database.sqlite');
+$repository = new SqliteParkingRepository($pdo);
+
+$validator  = new ParkingValidator();
+$calculator = new ParkingCalculator();
+$service    = new ParkingService($repository, $validator, $calculator);
+
+$exitResult = null;
+$errorMsg   = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $plate = strtolower(trim($_POST['plate'] ?? ''));
+    $type  = strtoupper(trim($_POST['vehicleType'] ?? ''));
+
+    if (isset($_POST['entry'])) {
+        $result = $service->registerVehicleEntry([
+            'plate'       => $plate,
+            'vehicleType' => $type
+        ]);
+
+        if (!$result['ok']) {
+            $errorMsg = $result['errors'][0] ?? 'Erro ao registrar entrada.';
+        }
+    }
+
+    if (isset($_POST['exit'])) {
+        $result = $service->doExitVehicle($plate);
+
+        if (!$result['ok']) {
+            $errorMsg = $result['errors'][0] ?? 'Erro ao registrar saída.';
+        } else {
+            $exitResult = [
+                'plate' => $plate,
+                'hours' => $result['hours'],
+                'price' => $result['price'],
+            ];
+        }
+    }
+}
+
+$report = $repository->listAll();
+$totalVehicles = count($report);
+
+$totalRevenueCar = 0;
+$totalRevenueMotorcycle = 0;
+$totalRevenueTruck = 0;
+
+foreach ($report as $v) {
+    if ($v->getPrice() !== null) {
+        match ($v->getVehicleType()) {
+            'CAR' => $totalRevenueCar += $v->getPrice(),
+            'MOTORCYCLE' => $totalRevenueMotorcycle += $v->getPrice(),
+            'TRUCK' => $totalRevenueTruck += $v->getPrice(),
+        };
+    }
+}
+
+$generalRevenue = $totalRevenueCar + $totalRevenueMotorcycle + $totalRevenueTruck;
 ?>
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.min.css">
-  <title>Controle de Estacionamento Inteligente</title>
-   <style>
-        body{
-            font-family:system-ui,Segoe UI,Arial;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background-color: #2d2d2d;
+    <meta charset="UTF-8">
+    <title>Parking System</title>
+    <style>
+        body {
+            background:#0a0a0a;
+            font-family:Inter,sans-serif;
+            color:white;
+            display:flex;
+            justify-content:center;
+            padding-top:50px;
         }
-
-        #container {
-            width: fit-content;
-            margin: 20px auto 0 auto;
-            text-align: left; 
+        .box {
+            width:340px;
+            background:#1a1a1a;
+            padding:18px;
+            border-radius:10px;
+            box-shadow:0px 0px 8px rgba(138,43,226,0.4);
         }
-
-        #title{
-            display: flex;
-            justify-content: center;
-            color: #ffff;
-            text-shadow: 2px 2px 2px rgba(76, 0, 255, 1);
-            font-size: 50px;
-            font-weight: bold;
-            
+        .summary {
+            background:#222;
+            padding:10px;
+            border-radius:6px;
+            font-size:14px;
+            margin-bottom:14px;
+            text-align:center;
         }
-
-        label{
-            display: block;
-            margin: .5rem 0;
+        .summary div { margin-bottom:4px; }
+        input, select, button {
+            width:100%;
+            padding:10px;
+            border:none;
+            border-radius:6px;
+            margin-bottom:10px;
+            font-size:15px;
         }
-
-        input{
-            margin: .5rem 0;
+        input, select {
+            background:#252525;
+            color:#ccc;
         }
-
-        .btns{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        button {
+            cursor:pointer;
+            font-weight:600;
         }
-
-        #btnCadastro{
-          cursor: pointer;
-          background-Color: rgba(14, 58, 1, 1);
-          border: 2px solid rgba(42, 255, 0, 1);
-          color: rgba(111, 255, 106, 1);
-          border-radius: 10px;
-          padding: 7px 7px;
-          margin: 5px;
-          font-size: 16px;  
-          font-weight: bold;
+        .btn-entry { background:#6a0dad; color:white; }
+        .btn-exit  { background:#8e44ad; color:white; }
+        .list {
+            max-height:150px;
+            overflow:auto;
+            background:#111;
+            padding:10px;
+            border-radius:6px;
+            font-size:13px;
         }
-
-        #btnSaida{
-          cursor: pointer;
-          background-Color: rgba(59, 1, 1, 1);
-          border: 2px solid rgba(255, 0, 0, 1);
-          color: rgba(255, 90, 90, 1);
-          border-radius: 10px;
-          padding: 7px 7px;
-          margin: 5px;
-          font-size: 16px;  
-          font-weight: bold;
+        .item {
+            padding:6px 0;
+            border-bottom:1px solid #2d2d2d;
+            text-align:center;
         }
-
-        #btnRelatorio{
-          cursor: pointer;
-          background-Color: rgba(3, 45, 68, 1);
-          border: 2px solid rgba(0, 106, 255, 1);
-          color: rgba(104, 235, 249, 1);
-          border-radius: 10px;
-          padding: 7px 7px;
-          margin: 5px;
-          font-size: 16px;
-          font-weight: bold;  
+        .item:last-child { border:none; }
+        .error {
+            background:#c70039;
+            padding:8px;
+            border-radius:6px;
+            font-size:13px;
+            text-align:center;
+            margin-bottom:10px;
         }
-
-        a{
-          text-decoration: none;  
-          color: currentcolor;
+        .alert {
+            background:#6a0dad;
+            padding:8px;
+            border-radius:6px;
+            font-size:14px;
+            text-align:center;
+            margin-bottom:10px;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1 id="title">Controle de Estacionamento Inteligente</h1>
-        <div class="btns">
-            <button id="btnCadastro">
-                <a href="register.php">Cadastrar seu veiculo</a>
-            </button>
-            <button id="btnSaida">
-                <a href="exit.php">Registrar saida</a>
-            </button>
-            <button id="btnRelatorio">
-                <a href="report.php">Relátorio</a>
-            </button>
-        </div>
+<div class="box">
+
+    <div class="summary">
+        <div>Total veículos: <?= $totalVehicles ?></div>
+        <div>Faturamento Moto: R$ <?= $totalRevenueMotorcycle ?></div>
+        <div>Faturamento Carro: R$ <?= $totalRevenueCar ?></div>
+        <div>Faturamento Caminhão: R$ <?= $totalRevenueTruck ?></div>
+        <div><strong>Total Faturado: R$ <?= $generalRevenue ?></strong></div>
     </div>
+
+    <?php if ($errorMsg): ?>
+        <div class="error"><?= htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8') ?></div>
+    <?php endif; ?>
+
+    <?php if ($exitResult): ?>
+        <div class="alert">
+            <?= htmlspecialchars($exitResult['plate'], ENT_QUOTES, 'UTF-8') ?>
+            — <?= $exitResult['hours'] ?>h — R$ <?= $exitResult['price'] ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <input name="plate" placeholder="Placa do veículo" required>
+
+        <select name="vehicleType">
+            <option value="CAR">Carro</option>
+            <option value="TRUCK">Caminhão</option>
+            <option value="MOTORCYCLE">Moto</option>
+        </select>
+
+        <button class="btn-entry" name="entry">Registrar Entrada</button>
+        <button class="btn-exit" name="exit">Registrar Saída</button>
+    </form>
+
+    <div class="list">
+        <?php foreach ($report as $v): ?>
+            <div class="item">
+                <?= htmlspecialchars($v->getPlate(), ENT_QUOTES, 'UTF-8') ?>
+                — <?= $v->getVehicleType() ?>
+                <?php if ($v->getExitTime() === null): ?>
+                    — ativo
+                <?php else: ?>
+                    — <?= $v->getHours() ?>h — R$ <?= $v->getPrice() ?>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+</div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
 </html>

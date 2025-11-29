@@ -6,22 +6,33 @@ namespace App\Domain;
 use App\Domain\VehicleHourPrice\CarPrice;
 use App\Domain\VehicleHourPrice\TruckPrice;
 use App\Domain\VehicleHourPrice\MotorcyclePrice;
+use DateTimeImmutable;
 
 final class ParkingCalculator
 {
-    public function calculatePrice(
-        \DateTimeImmutable $entryTime,
-        ?\DateTimeImmutable $exitTime,
-        IPrice $price
-        ): float {
-            if ($exitTime === null) {
-                $exitTime = new \DateTimeImmutable();
-            }
+    public function calculate(Parking $parking): array
+    {
+        $now  = new DateTimeImmutable();
+        $diff = $parking->getEntryTime()->diff($now);
 
-        $diff = $entryTime->diff($exitTime);
-        $hours = (float) $diff->h + ($diff->days * 24);
+        $hours = ($diff->days * 24) + $diff->h;
+        if ($diff->i > 0 || $diff->s > 0) {
+            $hours++;
+        }
+        $hours = (float) $hours;
 
-        return $hours * $price->price();
-    }
+        $pricePerHour = match ($parking->getVehicleType()) {
+            'CAR'        => (new CarPrice())->price(),
+            'MOTORCYCLE' => (new MotorcyclePrice())->price(),
+            'TRUCK'      => (new TruckPrice())->price()
+        };
 
+        $total = $hours * $pricePerHour;
+
+        return [
+            'exitTime' => $now,
+            'hours' => $hours,
+            'price' => $total,
+        ];
+    }
 }

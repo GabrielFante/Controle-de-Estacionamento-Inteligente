@@ -5,21 +5,39 @@ namespace App\Domain;
 
 final class ParkingValidator
 {
-    public function parkingValidate(array $input): array
+    public function validateEntry(array $input): array
     {
-
         $validPlateRegex = '/^[a-z0-9-]{5,7}$/';
-        
+
         $errors = [];
 
         $plate = strtolower(trim((string)($input['plate'] ?? '')));
-        
-        if ($plate === '' || !preg_match($plateRegex, $plate)) {
-            $errors = 'Placa inválida. Deve conter entre 5 e 7 caracteres e não deve ser vazia.';
+
+        if ($plate === '') {
+            $errors[] = 'Placa inválida.';
         }
 
-        if ($plate === preg_match($validPlateRegex, $plate)) {
-            $errors = 'Placa inválida. Deve conter apenas letras minúsculas, números';
+        if (!preg_match($validPlateRegex, $plate)) {
+            $errors[] = 'Placa deve conter entre 5 e 7 caracteres e apenas letras minúsculas, números ou hífen.';
         }
+
+        return [
+            'ok' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    public function validateExit(array $input): array
+    {
+        $errors = [];
+
+        $plate = strtolower(trim((string)($input['plate'] ?? '')));
+
+        if ($plate === '') {
+            $errors[] = 'Placa inválida.';
+            return ['ok' => false, 'errors' => $errors];
+        }
+
+        return ['ok' => true];
     }
 }

@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace App\Domain\VehicleHourPrice;
 
-require_once __DIR__ . 'IPrice.php';
-
-class TruckPrice implements IPrice
+final class TruckPrice implements IPrice
 {
-     public function price(): int
+    public function price(): int
     {
-        return 10;
-    }
-
+        return 10;
+    }
 }

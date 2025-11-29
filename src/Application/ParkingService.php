@@ -6,6 +6,7 @@ namespace App\Application;
 use App\Domain\ParkingValidator;
 use App\Domain\ParkingRepository;
 use App\Domain\ParkingCalculator;
+use App\Domain\Parking;
 
 final class ParkingService
 {
@@ -17,13 +18,9 @@ final class ParkingService
 
     public function parkingReport(): array
     {
-        return $this->repository->getAllEntries();
+        return $this->repository->listAll();
     }
 
-    /**
-     * @param array{plate:string, vehicle:string} $input
-     * @return array{ok:bool, errors?:array<string>, id?:int}
-     */
     public function registerVehicleEntry(array $input): array
     {
         $validation = $this->validator->validateEntry($input);
@@ -31,46 +28,44 @@ final class ParkingService
         if (!$validation['ok']) {
             return $validation;
         }
-        
-        $plate = strtolower(trim((string)$input['plate']));
-        $vehicleType = strtolower(trim((string)$input['vehicleType']));
-        $entryTime = strtolower(trim((string)$input['entryTime']));
 
-        $parking = new Parking(plate, vehicleType, entryTime);
-        $register = $this->$repository->register($parking);
+        $plate       = strtolower(trim($input['plate']));
+        $vehicleType = strtoupper(trim($input['vehicleType']));
+        $entryTime   = new \DateTimeImmutable();
 
-        return ['ok' => true, 'id' => $register->id()];
+        $parking = new Parking(
+            $plate,
+            $vehicleType,
+            $entryTime
+        );
+
+        $this->repository->register($parking);
+
+        return ['ok' => true];
     }
 
-    /**
-     * @return array{ok:bool, price?:float, hours?:int, errors?:array<string>}
-     */
     public function doExitVehicle(string $plate): array
     {
-        $validation = $this->validator->validateExit($plate);
+        $validation = $this->validator->validateExit(['plate' => $plate]);
 
         if (!$validation['ok']) {
             return $validation;
         }
 
-        $entry = $this->repository->findByPlate($plate);
+        try {
+            $parking = $this->repository->findByPlate($plate);
+            $calc = $this->calculator->calculate($parking);
 
-        $calculate = $this->pricing->calculatePrice($entry);
+            $this->repository->updateExitInfo(
+                $plate,
+                $calc['exitTime'],
+                $calc['price'],
+                $calc['hours']
+            );
 
-        if (!$calculate['ok']) {
-            return $calculate;
+            return ['ok' => true, 'hours'=>$calc['hours'], 'price'=>$calc['price']];
+        } catch (\Throwable $e) {
+            return ['ok'=>false, 'errors'=>[$e->getMessage()]];
         }
-
-        $this->repository->updateExitInfo(
-            $plate,
-            new \DateTimeImmutable(),
-            $calculate['hours']
-        );
-
-        return [
-            'ok'    => true,
-            'price' => $calculate['price'],
-            'hours' => $calculate['hours'],
-        ];
     }
 }

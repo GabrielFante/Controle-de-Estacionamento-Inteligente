@@ -9,7 +9,7 @@ interface ParkingRepository
 
     public function register(Parking $parking): void;
 
-    public function updateExitInfo(string $plate): void;
+    public function updateExitInfo(string $plate, \DateTimeImmutable $exitTime, float $price, float $hours): void;
 
     public function findByPlate(string $plate): Parking;
 
