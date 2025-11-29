@@ -14,5 +14,10 @@
     ],
     "require-dev": {
         "squizlabs/php_codesniffer": "^4.0"
+    },
+    "scripts": {
+        "dump" : "composer dump-autoload",
+        "serve": "php -S localhost:8000 -t public",
+        "migrate": "php storage/migrate.php"
     }
 }
