@@ -6,7 +6,7 @@ namespace App\Domain;
 final class Parking
 {
     public function __construct(
-        private ?int $id,
+        private ?int $id = 1,
         private string $plate,
         private string $vehicleType,
         private \DateTimeImmutable $entryTime,
@@ -17,6 +17,11 @@ final class Parking
         $this->vehicleType = $vehicleType;
         $this->entryTime = $entryTime;
         $this->exitTime = $exitTime;
+    }
+
+    public function nextId(): int
+    {
+        return $this->id + 1;
     }
 
     public function getId(): ?int { return $this->id; }

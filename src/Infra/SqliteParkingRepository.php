@@ -22,6 +22,7 @@ final class SqliteParkingRepository implements ParkingRepository
             'INSERT INTO parking (plate, vehicle_type, entry_time, exit_time) VALUES (:plate, :vehicle_type, :entry_time, :exit_time)'
         );
         $stmt->execute([
+            ':id' => $parking->getId(),
             ':plate' => $parking->getPlate(),
             ':vehicle_type' => $parking->getVehicleType(),
             ':entry_time' => $parking->getEntryTime()->format('Y-m-d H:i:s'),
@@ -62,14 +63,14 @@ final class SqliteParkingRepository implements ParkingRepository
         ]);
     }
 
-    public function findById(int $id): Parking
+    public function findByPlate(string $plate): Parking
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM parking WHERE id = :id');
-        $stmt->execute([':id' => $id]);
+        $stmt = $this->pdo->prepare('SELECT * FROM parking WHERE plate = :plate');
+        $stmt->execute([':plate' => $plate]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {
-            throw new \RuntimeException("Parking entry with ID $id not found.");
+            throw new \RuntimeException("Parking entry with plate $plate not found.");
         }
 
         return new Parking(
@@ -80,6 +81,7 @@ final class SqliteParkingRepository implements ParkingRepository
             $row['exit_time'] ? new \DateTimeImmutable($row['exit_time']) : null
         );
     }
+
     
     public function delete(int $id): void
     {
