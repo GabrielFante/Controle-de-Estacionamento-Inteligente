@@ -8,6 +8,10 @@ Moto	R$ 3
 Carro	R$ 5
 Caminhão	R$ 10
 
+## Participantes
+- Gabriel Fante Javarotti -- 1990554
+- Miguel Guarnetti -- 1999154
+
 ## Objetivo do projeto
 
 Automatizar o cálculo de uso do estacionamento e fornecer:
