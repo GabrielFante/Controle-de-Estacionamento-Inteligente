@@ -74,6 +74,12 @@ O relatório soma apenas veículos que já tem preço calculado no banco
 
 ## Resultado esperado
 
+# Registro de Entrada:
+![Tela Entrada](images/RegistroDeEntrada.png)
+
+# Registro de Saída:
+![Tela Entrada](images/RegistroDeSaida.png)
+
 Relatório principal mostra:
 Total veículos: 6 - 7
 Faturamento Moto: R$ 3 - 6
